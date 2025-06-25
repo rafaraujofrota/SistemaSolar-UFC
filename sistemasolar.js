@@ -1,17 +1,13 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { controls, timeStep, timeStop, camera, renderer, planetFocus } from './controls.js';
 
-// Alguns Parâmetros
+// Alguns Parâmetros 
 const scale = 10 // Mudar isso para caso precisar ver os planetas melhor ( normal = 1 )
 const sunSize = 110 // Padrão ( 110 )
 let time = 100 // Coloquei 100 para já dar uma espalhada. No 0 eles vão estar todos alinhados
-let timeStep = 0.01;
 
 // Cena
 const scene = new THREE.Scene();
-const aspectRatio = window.innerWidth / window.innerHeight
-const camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 100000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
 
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
@@ -29,7 +25,7 @@ function getTexture(name) {
     return textureLoader.load(`textures/${name}.png`)
 }
 
-function focusPlanet(planetFocus) {
+export function focusPlanet(planetFocus) {
     if(planetFocus == 0) return
 
     const system = planetSystem.list[planetFocus - 1]
@@ -60,42 +56,6 @@ const skyMaterial = new THREE.MeshBasicMaterial({
 
 const skyBox = new THREE.Mesh(skySphere, skyMaterial);
 scene.add(skyBox)
-
-// Controles
-const controls = new OrbitControls(camera, renderer.domElement);
-document.body.appendChild(renderer.domElement);
-
-let timeStop = false
-
-document.addEventListener('keydown', (event) => {
-  if (event.code === 'Space') {
-    timeStop = !timeStop;
-  } else if (event.key === '+') {
-    timeStep *= 1.2;
-    updateSpeedDisplay();
-  } else if (event.key === '-') {
-    timeStep /= 1.2;
-    updateSpeedDisplay();
-  }
-});
-
-let planetFocus = 0
-
-window.addEventListener('keydown', (e) => {
-  const index = parseInt(e.key);
-  if (!isNaN(index) && index >= 0 && index <= 9) {
-    planetFocus = index
-    if(planetFocus == 0) {
-        controls.enabled = true
-        camera.position.set(220, 220, 220)
-        controls.target.set(0, 0, 0)
-        controls.update()
-    } else {
-        controls.enabled = false
-        focusPlanet(planetFocus)
-    }
-  }
-});
 
 // Sol
 const sun = new THREE.Mesh(
@@ -367,59 +327,5 @@ function animate() {
     sunGlowMaterial.opacity = 0.4 + Math.cos(time) * 0.2
     sunGlowMaterial.color.g = 0.2 + Math.abs(Math.cos(time)) * 0.3
 }
-
-const planetNames = [
-  "Sol", // índice 0 = visão geral
-  "Mercúrio",
-  "Vênus",
-  "Terra",
-  "Marte",
-  "Júpiter",
-  "Saturno",
-  "Urano",
-  "Netuno",
-  "Plutão"
-];
-
-// Criação dos botões
-const buttonContainer = document.getElementById('planet-buttons');
-
-planetNames.forEach((name, index) => {
-  const button = document.createElement('button');
-  button.innerText = name;
-  button.addEventListener('click', () => {
-    planetFocus = index;
-    if (planetFocus === 0) {
-      controls.enabled = true;
-      camera.position.set(220, 220, 220);
-      controls.target.set(0, 0, 0);
-      controls.update();
-    } else {
-      controls.enabled = false;
-      focusPlanet(planetFocus);
-    }
-  });
-  buttonContainer.appendChild(button);
-});
-
-
-const speedDisplay = document.createElement('div');
-speedDisplay.id = 'speed-display';
-speedDisplay.style.position = 'absolute';
-speedDisplay.style.top = '10px';
-speedDisplay.style.right = '10px';
-speedDisplay.style.padding = '6px 12px';
-speedDisplay.style.background = 'rgba(0, 0, 0, 0.5)';
-speedDisplay.style.color = 'white';
-speedDisplay.style.fontFamily = 'monospace';
-speedDisplay.style.fontSize = '14px';
-speedDisplay.style.borderRadius = '4px';
-speedDisplay.style.zIndex = 20;
-document.body.appendChild(speedDisplay);
-
-function updateSpeedDisplay() {
-  speedDisplay.textContent = `Velocidade: ${timeStep.toFixed(4)}`;
-}
-updateSpeedDisplay();
 
 animate()
