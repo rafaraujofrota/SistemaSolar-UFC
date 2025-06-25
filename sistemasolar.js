@@ -5,6 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const scale = 10 // Mudar isso para caso precisar ver os planetas melhor ( normal = 1 )
 const sunSize = 110 // Padrão ( 110 )
 let time = 100 // Coloquei 100 para já dar uma espalhada. No 0 eles vão estar todos alinhados
+let timeStep = 0.01;
 
 // Cena
 const scene = new THREE.Scene();
@@ -68,7 +69,13 @@ let timeStop = false
 
 document.addEventListener('keydown', (event) => {
   if (event.code === 'Space') {
-    timeStop = !timeStop
+    timeStop = !timeStop;
+  } else if (event.key === '+') {
+    timeStep *= 1.2;
+    updateSpeedDisplay();
+  } else if (event.key === '-') {
+    timeStep /= 1.2;
+    updateSpeedDisplay();
   }
 });
 
@@ -348,7 +355,7 @@ function animate() {
     controls.enabled = timeStop || planetFocus == 0
     if(timeStop) return
 
-    time += 0.01
+    time += timeStep;
     sun.rotation.y = time * 0.25
     
     planetSystem.list.forEach((system) => system.update(time))
@@ -360,5 +367,59 @@ function animate() {
     sunGlowMaterial.opacity = 0.4 + Math.cos(time) * 0.2
     sunGlowMaterial.color.g = 0.2 + Math.abs(Math.cos(time)) * 0.3
 }
+
+const planetNames = [
+  "Sol", // índice 0 = visão geral
+  "Mercúrio",
+  "Vênus",
+  "Terra",
+  "Marte",
+  "Júpiter",
+  "Saturno",
+  "Urano",
+  "Netuno",
+  "Plutão"
+];
+
+// Criação dos botões
+const buttonContainer = document.getElementById('planet-buttons');
+
+planetNames.forEach((name, index) => {
+  const button = document.createElement('button');
+  button.innerText = name;
+  button.addEventListener('click', () => {
+    planetFocus = index;
+    if (planetFocus === 0) {
+      controls.enabled = true;
+      camera.position.set(220, 220, 220);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    } else {
+      controls.enabled = false;
+      focusPlanet(planetFocus);
+    }
+  });
+  buttonContainer.appendChild(button);
+});
+
+
+const speedDisplay = document.createElement('div');
+speedDisplay.id = 'speed-display';
+speedDisplay.style.position = 'absolute';
+speedDisplay.style.top = '10px';
+speedDisplay.style.right = '10px';
+speedDisplay.style.padding = '6px 12px';
+speedDisplay.style.background = 'rgba(0, 0, 0, 0.5)';
+speedDisplay.style.color = 'white';
+speedDisplay.style.fontFamily = 'monospace';
+speedDisplay.style.fontSize = '14px';
+speedDisplay.style.borderRadius = '4px';
+speedDisplay.style.zIndex = 20;
+document.body.appendChild(speedDisplay);
+
+function updateSpeedDisplay() {
+  speedDisplay.textContent = `Velocidade: ${timeStep.toFixed(4)}`;
+}
+updateSpeedDisplay();
 
 animate()
