@@ -45,6 +45,11 @@ export function focusPlanet(planetFocus) {
     controls.update()
 }
 
+const baseRotation = 24;
+function getRotation(hours) {
+  return baseRotation / hours;
+}
+
 function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
@@ -187,8 +192,8 @@ class planetSystem {
         let { sunDistance, sunSpeed, rotateSpeed } = this.movementData
 
         // 50 Vezes menor que a escala real
-        this.systemObject.position.x = Math.cos(time * sunSpeed) * sunDistance * sunSize / 50 
-        this.systemObject.position.z = Math.sin(time * sunSpeed) * sunDistance * sunSize / 50
+        this.systemObject.position.x = Math.cos(time * sunSpeed / 10) * sunDistance * sunSize / 50 
+        this.systemObject.position.z = Math.sin(time * sunSpeed / 10) * sunDistance * sunSize / 50
         this.planetObject.rotation.y = -time * rotateSpeed
 
         if(this.moonData) {
@@ -217,21 +222,21 @@ class planetSystem {
 new planetSystem(
     0.38,
     ["mercurio", "", "", "", 0.1],
-    { sunDistance: 83 , sunSpeed: 4.2, rotateSpeed: 0.5 },
+    { sunDistance: 83 , sunSpeed: 4.2, rotateSpeed: getRotation(1408) },
 )
 
 // Vênus
 new planetSystem(
     0.95,
     ["venus", "", "", "venus_atm", 0.1],
-    { sunDistance: 155 , sunSpeed: 1.6, rotateSpeed: 0.5 },
+    { sunDistance: 155 , sunSpeed: 1.6, rotateSpeed: getRotation(-5832) },
 )
 
 // Terra
 new planetSystem(
     1,
     ["terra", "terra_normal", "terra_specular", "nuvens", 10],
-    { sunDistance: 215 , sunSpeed: 1, rotateSpeed: 10 },
+    { sunDistance: 215 , sunSpeed: 1, rotateSpeed: getRotation(24) },
     [{ moonTexture: "lua", moonSize: 0.2, offset: 0, moonMovement: [10, 4, 5]}]
 )
 
@@ -239,9 +244,9 @@ new planetSystem(
 new planetSystem(
     0.53,
     ["marte", "", "", "", 0.1],
-    { sunDistance: 327 , sunSpeed: 0.5, rotateSpeed: 0.5 },
+    { sunDistance: 327 , sunSpeed: 0.5, rotateSpeed: getRotation(24.6) },
     [{ moonTexture: "luas_marte/deimos_texture", moonSize: 0.2, offset: 0, moonMovement: [10, 4]},
-    { moonTexture: "luas_marte/phobos_texture", moonSize: 0.5, offset: 1, moonMovement: [2, 10]}
+    { moonTexture: "luas_marte/phobos_texture", moonSize: 0.1, offset: 1, moonMovement: [2, 10]}
 ]
 )
 
@@ -249,10 +254,10 @@ new planetSystem(
 new planetSystem(
     11.21,
     ["jupiter", "", "", "", 0.1],
-    { sunDistance: 1120 , sunSpeed: 0.084, rotateSpeed: 0.5 },
+    { sunDistance: 1120 , sunSpeed: 0.084, rotateSpeed: getRotation(10) },
     [{ moonTexture: "luas_jupiter/europa_texture", moonSize: 0.2, offset: 0, moonMovement: [10, 4]},
     { moonTexture: "luas_jupiter/calisto_texture", moonSize: 0.8, offset: -5, moonMovement: [8, 10]},
-    { moonTexture: "luas_jupiter/ganymede_texture", moonSize: 0.6, offset: 3, moonMovement: [4, 4]},
+    { moonTexture: "luas_jupiter/ganymede_texture", moonSize: 0.6, offset: 3, moonMovement: [4, 3]},
     { moonTexture: "luas_jupiter/io_texture", moonSize: 0.5, offset: 1, moonMovement: [10, 3]}]
 )
 
@@ -260,10 +265,10 @@ new planetSystem(
 new planetSystem(
     9.45,
     ["saturno", "", "", "", 0.1],
-    { sunDistance: 2060 , sunSpeed: 0.034, rotateSpeed: 0.5 },
-    [{ moonTexture: "luas_saturno/titan_texture", moonSize: 0.2, offset: 3, moonMovement: [10, 4]},
+    { sunDistance: 2060 , sunSpeed: 0.034, rotateSpeed: getRotation(10.7) },
+    [{ moonTexture: "luas_saturno/titan_texture", moonSize: 0.2, offset: 3, moonMovement: [12, 4]},
     { moonTexture: "luas_saturno/enceladus_texture", moonSize: 0.8, offset: -4, moonMovement: [8, 10]},
-    { moonTexture: "luas_saturno/mimas_texture", moonSize: 0.6, offset: 6, moonMovement: [10, 6]},
+    { moonTexture: "luas_saturno/mimas_texture", moonSize: 0.6, offset: 6, moonMovement: [14, 6]},
     { moonTexture: "luas_saturno/dione_texture", moonSize: 0.4, offset: 3, moonMovement: [10, 8]}],
     { ringTexture: "saturno_anel", ringSize: 20, ringRadius: 10.5 }
 )
@@ -272,7 +277,7 @@ new planetSystem(
 new planetSystem(
     4.01,
     ["urano", "", "", "", 0.1],
-    { sunDistance: 4100 , sunSpeed: 0.012, rotateSpeed: 0.5 },
+    { sunDistance: 4100 , sunSpeed: 0.012, rotateSpeed: getRotation(17.2) },
     [{ moonTexture: "luas_urano/titania_texture", moonSize: 0.4, offset: 0, moonMovement: [2, 4]},
     { moonTexture: "luas_urano/miranda_texture", moonSize: 0.2, offset: 2, moonMovement: [4, 4]}]
 )
@@ -281,7 +286,7 @@ new planetSystem(
 new planetSystem(
     3.88,
     ["netuno", "", "", "", 0.1],
-    { sunDistance: 6450 , sunSpeed: 0.006, rotateSpeed: 0.5 },
+    { sunDistance: 6450 , sunSpeed: 0.006, rotateSpeed: getRotation(16.1) },
     [{ moonTexture: "luas_netuno/triton_texture", moonSize: 0.09, offset: -1, moonMovement: [4, 4]}]
 )
 
@@ -289,7 +294,7 @@ new planetSystem(
 new planetSystem(
     0.19,
     ["plutao", "", "", "", 0.1],
-    { sunDistance: 8500 , sunSpeed: 0.004, rotateSpeed: 0.5 },
+    { sunDistance: 8500 , sunSpeed: 0.004, rotateSpeed: getRotation(153) },
     [{ moonTexture: "luas_plutao/caronte_texture", moonSize: 0.095, offset: 0, moonMovement: [10, 3]}]
 )
 
