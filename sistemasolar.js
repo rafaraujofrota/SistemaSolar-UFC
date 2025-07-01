@@ -22,6 +22,10 @@ const textureLoader = new THREE.TextureLoader();
 
 function getTexture(name) {
     if(!name) return null
+    if(name.includes('/')){
+        let caminho = name.split('/')
+        return textureLoader.load(`textures/${caminho[0]}/${caminho[1]}.png`)
+    }
     return textureLoader.load(`textures/${name}.png`)
 }
 
@@ -63,16 +67,26 @@ const sun = new THREE.Mesh(
     new THREE.MeshBasicMaterial({ map: getTexture("sol") })
 )
 
-const sunGlowMaterial = new THREE.MeshBasicMaterial({
-    color: 0xffff00,
-    transparent: true,
-    opacity: 0.4,
-})
+const sunGlowTexture = getTexture("sol_glow_gradient"); // Carrega a nova textura
 
-const sunGlowEffect = new THREE.Mesh(new THREE.SphereGeometry(sunSize * 1.1), sunGlowMaterial);
+const spriteMaterial = new THREE.SpriteMaterial({
+    map: sunGlowTexture,
+    color: 0xffff00, // Você pode tingir o brilho
+    blending: THREE.AdditiveBlending, // Modo de mistura para brilho intenso
+    transparent: true,
+});
+
+// Crie o Sprite
+const sunGlowSprite = new THREE.Sprite(spriteMaterial);
+
+// Defina o tamanho do sprite. Ele precisa ser maior que o sol.
+// O valor aqui depende da sua cena, ajuste conforme necessário.
+const spriteSize = sunSize * 3.5; 
+sunGlowSprite.scale.set(spriteSize, spriteSize, 1);
+
 
 scene.add(sun)
-scene.add(sunGlowEffect)
+scene.add(sunGlowSprite)
 
 // Luz
 const sunLight = new THREE.PointLight(0xffffff, 1, 0, 0);
@@ -133,12 +147,18 @@ class planetSystem {
 
         if(moonData) { 
             for (const moon of moonData) {
-                let { moonTexture, moonSize, offset } = moon
+                let { moonTexture, moonSize, offset, orbitRadius, orbitSpeed } = moon
             
                 const moonMesh = new THREE.Mesh(
                     new THREE.SphereGeometry(), 
                     new THREE.MeshPhongMaterial({ map: getTexture(moonTexture) })
                 )
+
+                 // Propriedades da órbita
+                moonMesh.orbitAngle = 0 // posição inicial da órbita
+                moonMesh.orbitRadius = orbitRadius || offset * scale // raio da órbita
+                moonMesh.orbitSpeed = orbitSpeed || 0.01 // velocidade da órbita
+
                 moonMesh.position.y += offset * scale
                 moonMesh.scale.set(moonSize * scale, moonSize * scale, moonSize * scale)
 
@@ -225,7 +245,9 @@ new planetSystem(
     0.53,
     ["marte", "", "", "", 0.1],
     { sunDistance: 327 , sunSpeed: 0.5, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.2, offset: 0, moonMovement: [10, 4]}]
+    [{ moonTexture: "luas_marte/deimos_texture", moonSize: 0.2, offset: 0, moonMovement: [10, 4], orbitRadius:1, orbitSpeed: 5},
+    { moonTexture: "luas_marte/phobos_texture", moonSize: 0.5, offset: 1, moonMovement: [2, 10], orbitRadius:5, orbitSpeed: 1}
+]
 )
 
 // Júpiter
@@ -233,9 +255,10 @@ new planetSystem(
     11.21,
     ["jupiter", "", "", "", 0.1],
     { sunDistance: 1120 , sunSpeed: 0.084, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.2, offset: 0, moonMovement: [10, 4]},
-    { moonTexture: "lua", moonSize: 0.8, offset: -5, moonMovement: [8, 10]},
-    { moonTexture: "lua", moonSize: 0.4, offset: 3, moonMovement: [6, 6]}]
+    [{ moonTexture: "luas_jupiter/europa_texture", moonSize: 0.2, offset: 0, moonMovement: [10, 4]},
+    { moonTexture: "luas_jupiter/calisto_texture", moonSize: 0.8, offset: -5, moonMovement: [8, 10]},
+    { moonTexture: "luas_jupiter/ganymede_texture", moonSize: 0.6, offset: 3, moonMovement: [4, 4]},
+    { moonTexture: "luas_jupiter/io_texture", moonSize: 0.5, offset: 1, moonMovement: [10, 3]}]
 )
 
 // Saturno
@@ -243,7 +266,10 @@ new planetSystem(
     9.45,
     ["saturno", "", "", "", 0.1],
     { sunDistance: 2060 , sunSpeed: 0.034, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.2, offset: 3, moonMovement: [10, 4]}],
+    [{ moonTexture: "luas_saturno/titan_texture", moonSize: 0.2, offset: 3, moonMovement: [10, 4]},
+    { moonTexture: "luas_saturno/enceladus_texture", moonSize: 0.8, offset: -5, moonMovement: [8, 10]},
+    { moonTexture: "luas_saturno/mimas_texture", moonSize: 0.6, offset: 0, moonMovement: [10, 6]},
+    { moonTexture: "luas_saturno/dione_texture", moonSize: 0.4, offset: 3, moonMovement: [10, 8]}],
     { ringTexture: "saturno_anel", ringSize: 20, ringRadius: 10.5 }
 )
 
@@ -252,7 +278,8 @@ new planetSystem(
     4.01,
     ["urano", "", "", "", 0.1],
     { sunDistance: 4100 , sunSpeed: 0.012, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.2, offset: 0, moonMovement: [10, 4]}]
+    [{ moonTexture: "luas_urano/titania_texture", moonSize: 0.4, offset: 0, moonMovement: [2, 4]},
+    { moonTexture: "luas_urano/miranda_texture", moonSize: 0.2, offset: 2, moonMovement: [4, 4]}]
 )
 
 // Netuno
@@ -260,7 +287,7 @@ new planetSystem(
     3.88,
     ["netuno", "", "", "", 0.1],
     { sunDistance: 6450 , sunSpeed: 0.006, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.2, offset: 0, moonMovement: [10, 4]}]
+    [{ moonTexture: "luas_netuno/triton_texture", moonSize: 0.09, offset: -3, moonMovement: [4, 4]}]
 )
 
 // Plutão ( Não é planeta, mas decidi botar o coitadinho )
@@ -268,7 +295,7 @@ new planetSystem(
     0.19,
     ["plutao", "", "", "", 0.1],
     { sunDistance: 8500 , sunSpeed: 0.004, rotateSpeed: 0.5 },
-    [{ moonTexture: "lua", moonSize: 0.095, offset: 0, moonMovement: [10, 3]}]
+    [{ moonTexture: "luas_plutao/caronte_texture", moonSize: 0.095, offset: 0, moonMovement: [10, 3]}]
 )
 
 // Cinturão de Asteróides
@@ -324,8 +351,8 @@ function animate() {
     asteroidGroup.rotation.y = time * 0.1
 
     // Efeito para luz do Sol ( Não ficou tão legal, mas melhor que nada )
-    sunGlowMaterial.opacity = 0.4 + Math.cos(time) * 0.2
-    sunGlowMaterial.color.g = 0.2 + Math.abs(Math.cos(time)) * 0.3
+    //sunGlowMaterial.opacity = 0.4 + Math.cos(time) * 0.2
+    //sunGlowMaterial.color.g = 0.2 + Math.abs(Math.cos(time)) * 0.3
 }
 
 animate()
