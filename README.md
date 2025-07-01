@@ -71,11 +71,11 @@ A execução é feita localmente com arquivos HTML + JS via módulos ES6 e CDN.
 
 ## 👨‍🚀 Equipe do Projeto
 
-- Arthur 
-- Iara Amancio 
-- Joyce 
-- Rafael Araújo Frota 
-- Roger Morais Alves 
+- Arthur - 474295
+- Iara Amancio - 496385
+- Joyce - 494311
+- Rafael Araújo Frota - 554587
+- Roger Morais Alves - 499194
 
 
 
