@@ -7,7 +7,7 @@ Este projeto consiste no desenvolvimento de uma simulação interativa do Sistem
 ## 🎥 Vídeo do Projeto
 
 🔗 Link do vídeo mostrando o projeto em funcionamento:  
-**[Clique aqui para assistir](https://youtube.com/)**  
+**[Clique aqui para assistir](https://youtu.be/z5Th92Vd8vA)**  
 
 ---
 
